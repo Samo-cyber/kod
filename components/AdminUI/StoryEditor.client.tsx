@@ -42,7 +42,7 @@ export default function StoryEditor({ initialData, isNew = false }: StoryEditorP
             });
 
             if (res.ok) {
-                router.push("/admin/stories");
+                router.push("/admin");
                 router.refresh();
             } else {
                 const data = await res.json();
