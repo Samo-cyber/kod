@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-1: #0A0A0E;
+  --primary-2: #8A0014;
+  --accent: #D6C7A1;
+  --secondary-1: #1B1B22;
+  --secondary-2: #3A3A48;
+  --secondary-3: #EFE7D8;
+
+  --font-cairo: 'Cairo', sans-serif;
+  --font-changa: 'Changa', sans-serif;
+  --font-bebas: 'Bebas Neue', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --font-montserrat: 'Montserrat', sans-serif;
+}
+
+body {
+  background-color: var(--primary-1);
+  color: var(--secondary-3);
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--primary-1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--secondary-2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Horror Animations */
+@keyframes glitch {
+  0% {
+    transform: translate(0);
+  }
+
+  20% {
+    transform: translate(-2px, 2px);
+  }
+
+  40% {
+    transform: translate(-2px, -2px);
+  }
+
+  60% {
+    transform: translate(2px, 2px);
+  }
+
+  80% {
+    transform: translate(2px, -2px);
+  }
+
+  100% {
+    transform: translate(0);
+  }
+}
+
+@keyframes flicker {
+
+  0%,
+  19%,
+  21%,
+  23%,
+  25%,
+  54%,
+  56%,
+  100% {
+    opacity: 1;
+  }
+
+  20%,
+  24%,
+  55% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes fog-move {
+  0% {
+    transform: translateX(-10%);
+  }
+
+  50% {
+    transform: translateX(10%);
+  }
+
+  100% {
+    transform: translateX(-10%);
+  }
+}
+
+@keyframes pulse-red {
+  0% {
+    box-shadow: 0 0 0 0 rgba(138, 0, 20, 0.7);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(138, 0, 20, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(138, 0, 20, 0);
+  }
+}
+
+@keyframes drip {
+  0% {
+    height: 0;
+    opacity: 1;
+  }
+
+  80% {
+    height: 20px;
+    opacity: 1;
+  }
+
+  100% {
+    height: 20px;
+    opacity: 0;
+  }
+}

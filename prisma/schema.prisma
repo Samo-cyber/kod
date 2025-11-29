@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../data/db.sqlite"
+}
+
+model Story {
+  id               String   @id @default(uuid())
+  title_ar         String
+  title_en         String?
+  slug             String   @unique
+  excerpt_ar       String
+  body_markdown_ar String
+  body_html_ar     String
+  cover_image      String
+  audio_track      String?
+  status           String   @default("draft") // draft, published, archived
+  publish_date     DateTime?
+  reading_time_min Int      @default(0)
+  meta_title       String?
+  meta_description String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  author_id        String
+  author           Admin    @relation(fields: [author_id], references: [id])
+  tags             Tag[]
+}
+
+model Tag {
+  id      Int     @id @default(autoincrement())
+  name    String  @unique
+  slug    String  @unique
+  stories Story[]
+}
+
+model Media {
+  id            Int      @id @default(autoincrement())
+  type          String   // image, audio
+  path          String
+  original_name String
+  size_bytes    Int
+  uploaded_by   String
+  uploaded_at   DateTime @default(now())
+}
+
+model Admin {
+  id            String   @id @default(uuid())
+  username      String   @unique
+  password_hash String
+  display_name  String
+  roles         String   @default("editor") // superadmin, editor, uploader
+  created_at    DateTime @default(now())
+  last_login    DateTime?
+  stories       Story[]
+}
