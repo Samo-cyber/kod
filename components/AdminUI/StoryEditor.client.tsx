@@ -42,6 +42,9 @@ export default function StoryEditor({ initialData, isNew = false }: StoryEditorP
             });
 
             if (res.ok) {
+                const json = await res.json();
+                alert(`SUCCESS! Story Saved. ID: ${json.id}`);
+                console.log("Server Response:", json);
                 router.push("/admin");
                 router.refresh();
             } else {
