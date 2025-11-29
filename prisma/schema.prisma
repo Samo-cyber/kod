@@ -24,8 +24,8 @@ model Story {
   meta_description String?
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
-  author_id        String
-  author           Admin    @relation(fields: [author_id], references: [id])
+  author_id        String?
+  // author           Admin    @relation(fields: [author_id], references: [id])
   tags             Tag[]
 }
 

@@ -1,34 +1,8 @@
-// lib/supabase-adapter.ts
-// Supabase adapter — lazy-loads @supabase/supabase-js and avoids throwing during build
-
-export interface Story {
-  id: string;
-  title_ar: string;
-  title_en?: string | null;
-  slug: string;
-  excerpt_ar: string;
-  body_markdown_ar: string;
-  body_html_ar: string;
-  cover_image: string;
-  audio_track?: string | null;
-  status: "draft" | "published" | "archived";
-  publish_date?: Date | null;
-  reading_time_min: number;
-  meta_title?: string | null;
-  meta_description?: string | null;
-  created_at: Date;
-  updated_at: Date;
-  author_id: string;
-}
-
-export interface Media {
-  id: number;
-  type: "image" | "audio";
-  path: string;
-  original_name: string;
-  size_bytes: number;
-  uploaded_by: string;
-  uploaded_at: Date;
+status: "draft" | "published" | "archived";
+original_name: string;
+size_bytes: number;
+uploaded_by: string;
+uploaded_at: Date;
 }
 
 interface DBAdapter {

@@ -27,6 +27,7 @@ export async function POST(request: Request) {
         });
         return NextResponse.json(story);
     } catch (error) {
+        console.error("Create Story Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
