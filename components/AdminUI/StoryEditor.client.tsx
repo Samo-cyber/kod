@@ -38,30 +38,7 @@ export default function StoryEditor({ initialData, isNew = false }: StoryEditorP
             const res = await fetch(url, {
                 method,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...formData, body_html_ar }),
-            });
-
-            if (res.ok) {
-                router.push("/admin/stories");
-                router.refresh();
-                if (res.ok) {
-                    router.push("/admin/stories");
-                    router.refresh();
-                } else {
-                    const data = await res.json();
-                    alert(data.error || "حدث خطأ أثناء الحفظ");
-                    console.error("Submission Error:", data);
-                }
-            } catch (error) {
-                console.error(error);
-                alert("حدث خطأ في الاتصال");
-            } finally {
-                setIsSaving(false);
-            }
-        };
-
-        return (
-            <form onSubmit={handleSubmit} className="bg-secondary-1 p-8 rounded-lg shadow-lg border border-secondary-2">
+            < form onSubmit = { handleSubmit } className = "bg-secondary-1 p-8 rounded-lg shadow-lg border border-secondary-2" >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
                         <label className="block text-sm font-bold mb-2 text-accent">العنوان (عربي)</label>
@@ -160,6 +137,6 @@ export default function StoryEditor({ initialData, isNew = false }: StoryEditorP
                         {isSaving ? "جاري الحفظ..." : "حفظ القصة"}
                     </button>
                 </div>
-            </form>
+            </form >
         );
-    }
+}
