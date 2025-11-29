@@ -1,5 +1,4 @@
 // lib/supabase-adapter.ts
-// Force Rebuild: 1
 // Supabase adapter — lazy-loads @supabase/supabase-js and avoids throwing during build
 
 export interface Story {
@@ -81,111 +80,129 @@ class SupabaseAdapter implements DBAdapter {
 
     let query: any = supabase
       .from('Story')
-  })) as Story[];
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to);
 
-return { data: stories, meta: { total: count || 0, page, limit } };
+    if (opts?.status) query = query.eq('status', opts.status);
+
+    const { data, error, count } = await query;
+    if (error) {
+      console.error("getStories Error:", error);
+      throw error;
+    }
+    console.log(`getStories fetched ${data?.length} rows. Total count: ${count}`);
+
+    const stories = (data || []).map((s: any) => ({
+      ...s,
+      created_at: s.created_at ? new Date(s.created_at) : null,
+      updated_at: s.updated_at ? new Date(s.updated_at) : null,
+      publish_date: s.publish_date ? new Date(s.publish_date) : null
+    })) as Story[];
+
+    return { data: stories, meta: { total: count || 0, page, limit } };
   }
 
   async getStoryBySlug(slug: string) {
-  const supabase = await this.getClient();
-  if (!supabase) return null;
-  const { data, error } = await supabase.from('Story').select('*').eq('slug', slug).single();
-  if (error) return null;
-  return {
-    ...data,
-    created_at: data.created_at ? new Date(data.created_at) : null,
-    updated_at: data.updated_at ? new Date(data.updated_at) : null,
-    publish_date: data.publish_date ? new Date(data.publish_date) : null
-  } as Story;
-}
+    const supabase = await this.getClient();
+    if (!supabase) return null;
+    const { data, error } = await supabase.from('Story').select('*').eq('slug', slug).single();
+    if (error) return null;
+    return {
+      ...data,
+      created_at: data.created_at ? new Date(data.created_at) : null,
+      updated_at: data.updated_at ? new Date(data.updated_at) : null,
+      publish_date: data.publish_date ? new Date(data.publish_date) : null
+    } as Story;
+  }
 
   async getStoryById(id: string) {
-  const supabase = await this.getClient();
-  if (!supabase) return null;
-  const { data, error } = await supabase.from('Story').select('*').eq('id', id).single();
-  if (error) return null;
-  return {
-    ...data,
-    created_at: data.created_at ? new Date(data.created_at) : null,
-    updated_at: data.updated_at ? new Date(data.updated_at) : null,
-    publish_date: data.publish_date ? new Date(data.publish_date) : null
-  } as Story;
-}
+    const supabase = await this.getClient();
+    if (!supabase) return null;
+    const { data, error } = await supabase.from('Story').select('*').eq('id', id).single();
+    if (error) return null;
+    return {
+      ...data,
+      created_at: data.created_at ? new Date(data.created_at) : null,
+      updated_at: data.updated_at ? new Date(data.updated_at) : null,
+      publish_date: data.publish_date ? new Date(data.publish_date) : null
+    } as Story;
+  }
 
   async createStory(payload: Partial<Story>) {
-  const supabase = await this.getClient();
-  if (!supabase) throw new Error('Supabase not configured');
+    const supabase = await this.getClient();
+    if (!supabase) throw new Error('Supabase not configured');
 
-  const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([_, v]) => v !== undefined));
+    const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([_, v]) => v !== undefined));
 
-  const { data, error } = await supabase.from('Story').insert(cleanPayload).select().single();
-  if (error) {
-    console.error("Supabase Insert Error:", error);
-    throw error;
+    const { data, error } = await supabase.from('Story').insert(cleanPayload).select().single();
+    if (error) {
+      console.error("Supabase Insert Error:", error);
+      throw error;
+    }
+    console.log("Supabase Insert Success:", data);
+
+    return {
+      ...data,
+      created_at: data.created_at ? new Date(data.created_at) : null,
+      updated_at: data.updated_at ? new Date(data.updated_at) : null,
+      publish_date: data.publish_date ? new Date(data.publish_date) : null
+    } as Story;
   }
-  console.log("Supabase Insert Success:", data);
-
-  return {
-    ...data,
-    created_at: data.created_at ? new Date(data.created_at) : null,
-    updated_at: data.updated_at ? new Date(data.updated_at) : null,
-    publish_date: data.publish_date ? new Date(data.publish_date) : null
-  } as Story;
-}
 
   async updateStory(id: string, payload: Partial<Story>) {
-  const supabase = await this.getClient();
-  if (!supabase) throw new Error('Supabase not configured');
+    const supabase = await this.getClient();
+    if (!supabase) throw new Error('Supabase not configured');
 
-  const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([_, v]) => v !== undefined));
+    const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([_, v]) => v !== undefined));
 
-  const { data, error } = await supabase.from('Story').update(cleanPayload).eq('id', id).select().single();
-  if (error) throw error;
+    const { data, error } = await supabase.from('Story').update(cleanPayload).eq('id', id).select().single();
+    if (error) throw error;
 
-  return {
-    ...data,
-    created_at: data.created_at ? new Date(data.created_at) : null,
-    updated_at: data.updated_at ? new Date(data.updated_at) : null,
-    publish_date: data.publish_date ? new Date(data.publish_date) : null
-  } as Story;
-}
+    return {
+      ...data,
+      created_at: data.created_at ? new Date(data.created_at) : null,
+      updated_at: data.updated_at ? new Date(data.updated_at) : null,
+      publish_date: data.publish_date ? new Date(data.publish_date) : null
+    } as Story;
+  }
 
   async deleteStory(id: string) {
-  const supabase = await this.getClient();
-  if (!supabase) throw new Error('Supabase not configured');
-  const { error } = await supabase.from('Story').delete().eq('id', id);
-  if (error) throw error;
-}
+    const supabase = await this.getClient();
+    if (!supabase) throw new Error('Supabase not configured');
+    const { error } = await supabase.from('Story').delete().eq('id', id);
+    if (error) throw error;
+  }
 
   // Accept Buffer/Blob/ReadableStream or browser File depending on runtime
   async uploadMedia(file: any) {
-  const supabase = await this.getClient();
-  if (!supabase) throw new Error('Supabase not configured');
+    const supabase = await this.getClient();
+    if (!supabase) throw new Error('Supabase not configured');
 
-  const filename = `${Date.now()}-${(file && file.name) || 'upload'}`;
+    const filename = `${Date.now()}-${(file && file.name) || 'upload'}`;
 
-  // On server: file may be a Buffer or ReadableStream
-  // On client: it may be a File/Blob
-  const uploadArg = file.buffer ?? file; // if server single-file upload uses { buffer }
+    // On server: file may be a Buffer or ReadableStream
+    // On client: it may be a File/Blob
+    const uploadArg = file.buffer ?? file; // if server single-file upload uses { buffer }
 
-  const { data, error } = await supabase.storage.from('media').upload(filename, uploadArg, {
-    cacheControl: '3600',
-    upsert: false
-  });
+    const { data, error } = await supabase.storage.from('media').upload(filename, uploadArg, {
+      cacheControl: '3600',
+      upsert: false
+    });
 
-  if (error) throw error;
+    if (error) throw error;
 
-  const { data: publicData } = supabase.storage.from('media').getPublicUrl(data.path);
-  return { path: data.path, url: publicData.publicUrl };
-}
+    const { data: publicData } = supabase.storage.from('media').getPublicUrl(data.path);
+    return { path: data.path, url: publicData.publicUrl };
+  }
 
-  async listMedia(opts ?: { type?: string }) {
-  const supabase = await this.getClient();
-  if (!supabase) return [];
-  const { data, error } = await supabase.from('Media').select('*');
-  if (error) return [];
-  return (data || []).map((m: any) => ({ ...m, uploaded_at: m.uploaded_at ? new Date(m.uploaded_at) : null })) as Media[];
-}
+  async listMedia(opts?: { type?: string }) {
+    const supabase = await this.getClient();
+    if (!supabase) return [];
+    const { data, error } = await supabase.from('Media').select('*');
+    if (error) return [];
+    return (data || []).map((m: any) => ({ ...m, uploaded_at: m.uploaded_at ? new Date(m.uploaded_at) : null })) as Media[];
+  }
 }
 
 export const db = new SupabaseAdapter();
