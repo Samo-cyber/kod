@@ -26,7 +26,6 @@ export async function POST(request: Request) {
             slug: body.slug || body.title_ar.toLowerCase().replace(/ /g, "-"), // Simple slug fallback
         });
         return NextResponse.json(story);
-    } catch (error) {
     } catch (error: any) {
         console.error("Create Story Error:", error);
         return NextResponse.json(
