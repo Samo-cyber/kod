@@ -21,8 +21,11 @@ export default function AdminLogin() {
             const { createClient } = await import("@/utils/supabase/client");
             const supabase = createClient();
 
+            // Allow login with username "admin" by appending domain
+            const email = username.includes("@") ? username : `${username}@kod.com`;
+
             const { error } = await supabase.auth.signInWithPassword({
-                email: username,
+                email,
                 password,
             });
 
