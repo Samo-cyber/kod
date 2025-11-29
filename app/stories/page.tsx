@@ -19,7 +19,10 @@ export default async function StoriesPage() {
             <div className="container mx-auto">
                 <div className="flex justify-between items-center mb-12">
                     <div className="flex items-center gap-6">
-                        <h1 className="text-4xl font-cairo font-bold text-accent">قصص الرعب</h1>
+                        <h1 className="text-4xl font-cairo font-bold text-accent">
+                            قصص الرعب
+                            <span className="text-lg text-secondary-3 opacity-50 mr-4 font-normal">({stories.length})</span>
+                        </h1>
                         <Link href="/stories/submit" className="bg-secondary-2 border border-accent text-accent px-4 py-2 rounded hover:bg-accent hover:text-primary-1 transition-colors text-sm font-bold">
                             ابعت قصتك
                         </Link>
@@ -32,7 +35,7 @@ export default async function StoriesPage() {
                 {stories.length === 0 ? (
                     <p className="text-center text-xl opacity-50">لا توجد قصص منشورة حالياً.</p>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {stories.map((story) => (
                             <Link key={story.id} href={`/story/${story.slug}`}>
                                 <StoryCard
