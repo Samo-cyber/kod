@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 
 // Force dynamic rendering to ensure we get fresh data
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 async function getStories() {
     await db.connect();
