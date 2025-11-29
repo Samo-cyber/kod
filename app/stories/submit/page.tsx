@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 export default function SubmitStoryPage() {
     const router = useRouter();
     const [formData, setFormData] = useState({
+        title: "",
         authorName: "",
         email: "",
         storyContent: "",
@@ -21,13 +22,29 @@ export default function SubmitStoryPage() {
 
         setIsSubmitting(true);
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        try {
+            const res = await fetch("/api/stories/submit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    title: formData.title,
+                    content: formData.storyContent,
+                    author: formData.authorName,
+                    email: formData.email
+                }),
+            });
 
-        setIsSubmitting(false);
-        setSubmitted(true);
-
-        // In a real app, we would POST to /api/stories/submit here
+            if (res.ok) {
+                setSubmitted(true);
+            } else {
+                alert("حدث خطأ أثناء الإرسال. حاول مرة أخرى.");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("حدث خطأ في الاتصال");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (submitted) {
@@ -53,6 +70,18 @@ export default function SubmitStoryPage() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="bg-secondary-1 p-8 rounded-lg shadow-lg border border-secondary-2">
+                    <div className="mb-6">
+                        <label className="block text-sm font-bold mb-2 text-accent">عنوان القصة</label>
+                        <input
+                            type="text"
+                            required
+                            className="w-full p-3 bg-secondary-2 border border-secondary-2 rounded focus:border-accent focus:outline-none text-secondary-3"
+                            value={formData.title}
+                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            placeholder="اختر عنواناً مرعباً..."
+                        />
+                    </div>
+
                     <div className="mb-6">
                         <label className="block text-sm font-bold mb-2 text-accent">اسم الكاتب (أو اللقب)</label>
                         <input
