@@ -1,17 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-// Mock auth check
-const isAuthenticated = (req: Request) => {
-    // In real app, check session/cookie
-    return true;
-};
-
 export async function GET(request: Request) {
-    if (!isAuthenticated(request)) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
@@ -27,10 +17,6 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-    if (!isAuthenticated(request)) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     try {
         const body = await request.json();
         await db.connect();

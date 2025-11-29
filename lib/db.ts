@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 // Define the shape of our data models
 export interface Story {
@@ -43,87 +43,183 @@ interface DBAdapter {
     listMedia(opts?: { type?: string }): Promise<Media[]>;
 }
 
-// Prisma Singleton Pattern for Next.js Hot Reloading
-const globalForPrisma = globalThis as unknown as {
-    prisma: PrismaClient | undefined;
-};
+// Supabase Adapter Implementation
+class SupabaseAdapter implements DBAdapter {
+    private supabase: SupabaseClient;
 
-const prisma = globalForPrisma.prisma ?? new PrismaClient();
+    constructor() {
+        const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
-
-// Factory to get the correct adapter
-class DBFactory {
-    private static instance: DBAdapter;
-
-    static getAdapter(): DBAdapter {
-        if (!this.instance) {
-            const mode = process.env.STORAGE_MODE || "local";
-
-            if (mode === "local") {
-                this.instance = new LocalAdapter();
-            } else if (mode === "postgres" || mode === "supabase") {
-                // Placeholder for remote adapter
-                this.instance = new LocalAdapter(); // Fallback for now
-            } else {
-                throw new Error(`Unknown STORAGE_MODE: ${mode}`);
-            }
+        if (!supabaseUrl || !supabaseKey) {
+            throw new Error("Missing Supabase environment variables");
         }
-        return this.instance;
-    }
-}
 
-// Local Adapter Implementation (using Prisma + Local FS)
-class LocalAdapter implements DBAdapter {
-    // Use the singleton prisma instance
-    private prisma: PrismaClient = prisma;
+        this.supabase = createClient(supabaseUrl, supabaseKey);
+    }
 
     async connect() {
-        await this.prisma.$connect();
+        // No-op for Supabase
     }
 
     async getStories(opts?: { status?: string; limit?: number; page?: number }) {
-        const where = opts?.status ? { status: opts.status } : {};
-        const take = opts?.limit || 10;
-        const skip = ((opts?.page || 1) - 1) * take;
+        const page = opts?.page || 1;
+        const limit = opts?.limit || 10;
+        const from = (page - 1) * limit;
+        const to = from + limit - 1;
 
-        const [data, total] = await Promise.all([
-            this.prisma.story.findMany({ where, take, skip, orderBy: { created_at: 'desc' } }),
-            this.prisma.story.count({ where })
-        ]);
+        let query = this.supabase
+            .from('Story')
+            .select('*', { count: 'exact' })
+            .order('created_at', { ascending: false })
+            .range(from, to);
 
-        return { data: data as any, meta: { total, page: opts?.page || 1, limit: take } };
+        if (opts?.status) {
+            query = query.eq('status', opts.status);
+        }
+
+        const { data, error, count } = await query;
+
+        if (error) throw error;
+
+        // Convert dates
+        const stories = data?.map(story => ({
+            ...story,
+            created_at: new Date(story.created_at),
+            updated_at: new Date(story.updated_at),
+            publish_date: story.publish_date ? new Date(story.publish_date) : null
+        })) as Story[];
+
+        return {
+            data: stories || [],
+            meta: {
+                total: count || 0,
+                page,
+                limit
+            }
+        };
     }
 
     async getStoryBySlug(slug: string) {
-        return this.prisma.story.findUnique({ where: { slug } }) as any;
+        const { data, error } = await this.supabase
+            .from('Story')
+            .select('*')
+            .eq('slug', slug)
+            .single();
+
+        if (error) return null;
+
+        return {
+            ...data,
+            created_at: new Date(data.created_at),
+            updated_at: new Date(data.updated_at),
+            publish_date: data.publish_date ? new Date(data.publish_date) : null
+        } as Story;
     }
 
     async getStoryById(id: string) {
-        return this.prisma.story.findUnique({ where: { id } }) as any;
+        const { data, error } = await this.supabase
+            .from('Story')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (error) return null;
+
+        return {
+            ...data,
+            created_at: new Date(data.created_at),
+            updated_at: new Date(data.updated_at),
+            publish_date: data.publish_date ? new Date(data.publish_date) : null
+        } as Story;
     }
 
     async createStory(payload: Partial<Story>) {
-        return this.prisma.story.create({ data: payload as any }) as any;
+        // Remove undefined fields
+        const cleanPayload = Object.fromEntries(
+            Object.entries(payload).filter(([_, v]) => v !== undefined)
+        );
+
+        const { data, error } = await this.supabase
+            .from('Story')
+            .insert(cleanPayload)
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        return {
+            ...data,
+            created_at: new Date(data.created_at),
+            updated_at: new Date(data.updated_at),
+            publish_date: data.publish_date ? new Date(data.publish_date) : null
+        } as Story;
     }
 
     async updateStory(id: string, payload: Partial<Story>) {
-        return this.prisma.story.update({ where: { id }, data: payload as any }) as any;
+        const cleanPayload = Object.fromEntries(
+            Object.entries(payload).filter(([_, v]) => v !== undefined)
+        );
+
+        const { data, error } = await this.supabase
+            .from('Story')
+            .update(cleanPayload)
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        return {
+            ...data,
+            created_at: new Date(data.created_at),
+            updated_at: new Date(data.updated_at),
+            publish_date: data.publish_date ? new Date(data.publish_date) : null
+        } as Story;
     }
 
     async deleteStory(id: string) {
-        await this.prisma.story.delete({ where: { id } });
+        const { error } = await this.supabase
+            .from('Story')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
     }
 
     async uploadMedia(file: File) {
-        // This would handle local file writing
-        // For now returning mock
-        return { path: "/uploads/mock.jpg", url: "/uploads/mock.jpg" };
+        const fileName = `${Date.now()}-${file.name}`;
+        const { data, error } = await this.supabase.storage
+            .from('media')
+            .upload(fileName, file);
+
+        if (error) throw error;
+
+        const { data: { publicUrl } } = this.supabase.storage
+            .from('media')
+            .getPublicUrl(fileName);
+
+        // Also save to Media table if needed, but for now just return path/url
+        return { path: data.path, url: publicUrl };
     }
 
     async listMedia(opts?: { type?: string }) {
-        return this.prisma.media.findMany() as any;
+        // This would ideally query a Media table, or list from storage
+        // For now, let's assume we query the Media table if it exists, or just return empty
+        // The original code used Prisma.media.findMany()
+
+        const { data, error } = await this.supabase
+            .from('Media')
+            .select('*');
+
+        if (error) return []; // Fail gracefully if table doesn't exist yet
+
+        return data.map(m => ({
+            ...m,
+            uploaded_at: new Date(m.uploaded_at)
+        })) as Media[];
     }
 }
 
-export const db = DBFactory.getAdapter();
+export const db = new SupabaseAdapter();
+

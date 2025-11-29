@@ -13,11 +13,19 @@ export default function AdminLogin() {
         e.preventDefault();
         setError("");
 
-        // TODO: Implement actual auth
-        if (username === "admin" && password === "admin") {
-            router.push("/admin");
+        const { createClient } = await import("@/utils/supabase/client");
+        const supabase = createClient();
+
+        const { error } = await supabase.auth.signInWithPassword({
+            email: username, // Assuming username is email for Supabase
+            password,
+        });
+
+        if (error) {
+            setError(error.message);
         } else {
-            setError("بيانات الدخول غير صحيحة");
+            router.push("/admin");
+            router.refresh();
         }
     };
 
