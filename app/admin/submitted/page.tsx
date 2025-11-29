@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 async function getSubmittedStories() {
     await db.connect();

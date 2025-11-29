@@ -4,6 +4,7 @@ import LogoutButton from "@/components/Admin/LogoutButton";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 async function getStories() {
     await db.connect();
