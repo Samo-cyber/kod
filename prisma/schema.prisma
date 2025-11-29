@@ -54,5 +54,5 @@ model Admin {
   roles         String   @default("editor") // superadmin, editor, uploader
   created_at    DateTime @default(now())
   last_login    DateTime?
-  stories       Story[]
+  // stories       Story[]
 }
