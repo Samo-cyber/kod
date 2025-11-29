@@ -1,225 +1,200 @@
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+// lib/supabase-adapter.ts
+// Supabase adapter — lazy-loads @supabase/supabase-js and avoids throwing during build
 
-// Define the shape of our data models
 export interface Story {
-    id: string;
-    title_ar: string;
-    title_en?: string | null;
-    slug: string;
-    excerpt_ar: string;
-    body_markdown_ar: string;
-    body_html_ar: string;
-    cover_image: string;
-    audio_track?: string | null;
-    status: "draft" | "published" | "archived";
-    publish_date?: Date | null;
-    reading_time_min: number;
-    meta_title?: string | null;
-    meta_description?: string | null;
-    created_at: Date;
-    updated_at: Date;
-    author_id: string;
+  id: string;
+  title_ar: string;
+  title_en?: string | null;
+  slug: string;
+  excerpt_ar: string;
+  body_markdown_ar: string;
+  body_html_ar: string;
+  cover_image: string;
+  audio_track?: string | null;
+  status: "draft" | "published" | "archived";
+  publish_date?: Date | null;
+  reading_time_min: number;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  created_at: Date;
+  updated_at: Date;
+  author_id: string;
 }
 
 export interface Media {
-    id: number;
-    type: "image" | "audio";
-    path: string;
-    original_name: string;
-    size_bytes: number;
-    uploaded_by: string;
-    uploaded_at: Date;
+  id: number;
+  type: "image" | "audio";
+  path: string;
+  original_name: string;
+  size_bytes: number;
+  uploaded_by: string;
+  uploaded_at: Date;
 }
 
 interface DBAdapter {
-    connect(): Promise<void>;
-    getStories(opts?: { status?: string; limit?: number; page?: number }): Promise<{ data: Story[]; meta: { total: number; page: number; limit: number } }>;
-    getStoryBySlug(slug: string): Promise<Story | null>;
-    getStoryById(id: string): Promise<Story | null>;
-    createStory(payload: Partial<Story>): Promise<Story>;
-    updateStory(id: string, payload: Partial<Story>): Promise<Story>;
-    deleteStory(id: string): Promise<void>;
-    uploadMedia(file: File): Promise<{ path: string; url: string }>;
-    listMedia(opts?: { type?: string }): Promise<Media[]>;
+  connect(): Promise<void>;
+  getStories(opts?: { status?: string; limit?: number; page?: number }): Promise<{ data: Story[]; meta: { total: number; page: number; limit: number } }>;
+  getStoryBySlug(slug: string): Promise<Story | null>;
+  getStoryById(id: string): Promise<Story | null>;
+  createStory(payload: Partial<Story>): Promise<Story>;
+  updateStory(id: string, payload: Partial<Story>): Promise<Story>;
+  deleteStory(id: string): Promise<void>;
+  uploadMedia(file: any): Promise<{ path: string; url: string }>;
+  listMedia(opts?: { type?: string }): Promise<Media[]>;
 }
 
-// Supabase Adapter Implementation
+// Implementation: lazy import to avoid Edge/runtime build issues and avoid throwing at import time
 class SupabaseAdapter implements DBAdapter {
-    private supabase: SupabaseClient;
+  private supabase: any | null = null;
+  private url?: string;
+  private key?: string;
 
-    constructor() {
-        const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  constructor() {
+    // store env values but do not throw here to avoid breaking `next build`
+    this.url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+    this.key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  }
 
-        if (!supabaseUrl || !supabaseKey) {
-            throw new Error("Missing Supabase environment variables");
-        }
+  private async getClient() {
+    if (!this.url || !this.key) return null;
+    if (this.supabase) return this.supabase;
 
-        this.supabase = createClient(supabaseUrl, supabaseKey);
-    }
+    // dynamic import so bundler/edge runtime won't eagerly require Node APIs
+    const { createClient } = await import('@supabase/supabase-js');
+    this.supabase = createClient(this.url, this.key, { auth: { persistSession: false } });
+    return this.supabase;
+  }
 
-    async connect() {
-        // No-op for Supabase
-    }
+  async connect() {
+    await this.getClient();
+  }
 
-    async getStories(opts?: { status?: string; limit?: number; page?: number }) {
-        const page = opts?.page || 1;
-        const limit = opts?.limit || 10;
-        const from = (page - 1) * limit;
-        const to = from + limit - 1;
+  async getStories(opts?: { status?: string; limit?: number; page?: number }) {
+    const supabase = await this.getClient();
+    if (!supabase) throw new Error('Supabase not configured');
 
-        let query = this.supabase
-            .from('Story')
-            .select('*', { count: 'exact' })
-            .order('created_at', { ascending: false })
-            .range(from, to);
+    const page = opts?.page || 1;
+    const limit = opts?.limit || 10;
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
 
-        if (opts?.status) {
-            query = query.eq('status', opts.status);
-        }
+    let query: any = supabase
+      .from('Story')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to);
 
-        const { data, error, count } = await query;
+    if (opts?.status) query = query.eq('status', opts.status);
 
-        if (error) throw error;
+    const { data, error, count } = await query;
+    if (error) throw error;
 
-        // Convert dates
-        const stories = data?.map(story => ({
-            ...story,
-            created_at: new Date(story.created_at),
-            updated_at: new Date(story.updated_at),
-            publish_date: story.publish_date ? new Date(story.publish_date) : null
-        })) as Story[];
+    const stories = (data || []).map((s: any) => ({
+      ...s,
+      created_at: s.created_at ? new Date(s.created_at) : null,
+      updated_at: s.updated_at ? new Date(s.updated_at) : null,
+      publish_date: s.publish_date ? new Date(s.publish_date) : null
+    })) as Story[];
 
-        return {
-            data: stories || [],
-            meta: {
-                total: count || 0,
-                page,
-                limit
-            }
-        };
-    }
+    return { data: stories, meta: { total: count || 0, page, limit } };
+  }
 
-    async getStoryBySlug(slug: string) {
-        const { data, error } = await this.supabase
-            .from('Story')
-            .select('*')
-            .eq('slug', slug)
-            .single();
+  async getStoryBySlug(slug: string) {
+    const supabase = await this.getClient();
+    if (!supabase) return null;
+    const { data, error } = await supabase.from('Story').select('*').eq('slug', slug).single();
+    if (error) return null;
+    return {
+      ...data,
+      created_at: data.created_at ? new Date(data.created_at) : null,
+      updated_at: data.updated_at ? new Date(data.updated_at) : null,
+      publish_date: data.publish_date ? new Date(data.publish_date) : null
+    } as Story;
+  }
 
-        if (error) return null;
+  async getStoryById(id: string) {
+    const supabase = await this.getClient();
+    if (!supabase) return null;
+    const { data, error } = await supabase.from('Story').select('*').eq('id', id).single();
+    if (error) return null;
+    return {
+      ...data,
+      created_at: data.created_at ? new Date(data.created_at) : null,
+      updated_at: data.updated_at ? new Date(data.updated_at) : null,
+      publish_date: data.publish_date ? new Date(data.publish_date) : null
+    } as Story;
+  }
 
-        return {
-            ...data,
-            created_at: new Date(data.created_at),
-            updated_at: new Date(data.updated_at),
-            publish_date: data.publish_date ? new Date(data.publish_date) : null
-        } as Story;
-    }
+  async createStory(payload: Partial<Story>) {
+    const supabase = await this.getClient();
+    if (!supabase) throw new Error('Supabase not configured');
 
-    async getStoryById(id: string) {
-        const { data, error } = await this.supabase
-            .from('Story')
-            .select('*')
-            .eq('id', id)
-            .single();
+    const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([_, v]) => v !== undefined));
 
-        if (error) return null;
+    const { data, error } = await supabase.from('Story').insert(cleanPayload).select().single();
+    if (error) throw error;
 
-        return {
-            ...data,
-            created_at: new Date(data.created_at),
-            updated_at: new Date(data.updated_at),
-            publish_date: data.publish_date ? new Date(data.publish_date) : null
-        } as Story;
-    }
+    return {
+      ...data,
+      created_at: data.created_at ? new Date(data.created_at) : null,
+      updated_at: data.updated_at ? new Date(data.updated_at) : null,
+      publish_date: data.publish_date ? new Date(data.publish_date) : null
+    } as Story;
+  }
 
-    async createStory(payload: Partial<Story>) {
-        // Remove undefined fields
-        const cleanPayload = Object.fromEntries(
-            Object.entries(payload).filter(([_, v]) => v !== undefined)
-        );
+  async updateStory(id: string, payload: Partial<Story>) {
+    const supabase = await this.getClient();
+    if (!supabase) throw new Error('Supabase not configured');
 
-        const { data, error } = await this.supabase
-            .from('Story')
-            .insert(cleanPayload)
-            .select()
-            .single();
+    const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([_, v]) => v !== undefined));
 
-        if (error) throw error;
+    const { data, error } = await supabase.from('Story').update(cleanPayload).eq('id', id).select().single();
+    if (error) throw error;
 
-        return {
-            ...data,
-            created_at: new Date(data.created_at),
-            updated_at: new Date(data.updated_at),
-            publish_date: data.publish_date ? new Date(data.publish_date) : null
-        } as Story;
-    }
+    return {
+      ...data,
+      created_at: data.created_at ? new Date(data.created_at) : null,
+      updated_at: data.updated_at ? new Date(data.updated_at) : null,
+      publish_date: data.publish_date ? new Date(data.publish_date) : null
+    } as Story;
+  }
 
-    async updateStory(id: string, payload: Partial<Story>) {
-        const cleanPayload = Object.fromEntries(
-            Object.entries(payload).filter(([_, v]) => v !== undefined)
-        );
+  async deleteStory(id: string) {
+    const supabase = await this.getClient();
+    if (!supabase) throw new Error('Supabase not configured');
+    const { error } = await supabase.from('Story').delete().eq('id', id);
+    if (error) throw error;
+  }
 
-        const { data, error } = await this.supabase
-            .from('Story')
-            .update(cleanPayload)
-            .eq('id', id)
-            .select()
-            .single();
+  // Accept Buffer/Blob/ReadableStream or browser File depending on runtime
+  async uploadMedia(file: any) {
+    const supabase = await this.getClient();
+    if (!supabase) throw new Error('Supabase not configured');
 
-        if (error) throw error;
+    const filename = `${Date.now()}-${(file && file.name) || 'upload'}`;
 
-        return {
-            ...data,
-            created_at: new Date(data.created_at),
-            updated_at: new Date(data.updated_at),
-            publish_date: data.publish_date ? new Date(data.publish_date) : null
-        } as Story;
-    }
+    // On server: file may be a Buffer or ReadableStream
+    // On client: it may be a File/Blob
+    const uploadArg = file.buffer ?? file; // if server single-file upload uses { buffer }
 
-    async deleteStory(id: string) {
-        const { error } = await this.supabase
-            .from('Story')
-            .delete()
-            .eq('id', id);
+    const { data, error } = await supabase.storage.from('media').upload(filename, uploadArg, {
+      cacheControl: '3600',
+      upsert: false
+    });
 
-        if (error) throw error;
-    }
+    if (error) throw error;
 
-    async uploadMedia(file: File) {
-        const fileName = `${Date.now()}-${file.name}`;
-        const { data, error } = await this.supabase.storage
-            .from('media')
-            .upload(fileName, file);
+    const { data: publicData } = supabase.storage.from('media').getPublicUrl(data.path);
+    return { path: data.path, url: publicData.publicUrl };
+  }
 
-        if (error) throw error;
-
-        const { data: { publicUrl } } = this.supabase.storage
-            .from('media')
-            .getPublicUrl(fileName);
-
-        // Also save to Media table if needed, but for now just return path/url
-        return { path: data.path, url: publicUrl };
-    }
-
-    async listMedia(opts?: { type?: string }) {
-        // This would ideally query a Media table, or list from storage
-        // For now, let's assume we query the Media table if it exists, or just return empty
-        // The original code used Prisma.media.findMany()
-
-        const { data, error } = await this.supabase
-            .from('Media')
-            .select('*');
-
-        if (error) return []; // Fail gracefully if table doesn't exist yet
-
-        return data.map(m => ({
-            ...m,
-            uploaded_at: new Date(m.uploaded_at)
-        })) as Media[];
-    }
+  async listMedia(opts?: { type?: string }) {
+    const supabase = await this.getClient();
+    if (!supabase) return [];
+    const { data, error } = await supabase.from('Media').select('*');
+    if (error) return [];
+    return (data || []).map((m: any) => ({ ...m, uploaded_at: m.uploaded_at ? new Date(m.uploaded_at) : null })) as Media[];
+  }
 }
 
 export const db = new SupabaseAdapter();
-
