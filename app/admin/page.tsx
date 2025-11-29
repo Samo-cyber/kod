@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+import LogoutButton from "@/components/Admin/LogoutButton";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -17,9 +18,7 @@ export default async function AdminDashboard() {
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-accent">إدارة القصص</h1>
                 <div className="flex gap-4">
-                    <button className="text-primary-2 hover:text-red-500 transition-colors">
-                        تسجيل الخروج
-                    </button>
+                    <LogoutButton />
                     <Link href="/admin/stories/new" className="bg-primary-2 text-secondary-3 px-6 py-2 rounded hover:bg-red-900 transition-colors">
                         إضافة قصة جديدة
                     </Link>
