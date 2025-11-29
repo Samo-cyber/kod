@@ -19,6 +19,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
+        console.log("API Received Body:", JSON.stringify(body, null, 2));
         // Check for Service Role Key
         if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
             throw new Error("CONFIGURATION ERROR: SUPABASE_SERVICE_ROLE_KEY is missing. Please add it to Vercel Environment Variables.");
