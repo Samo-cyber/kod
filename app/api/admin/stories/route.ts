@@ -19,6 +19,11 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
+        // Check for Service Role Key
+        if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+            throw new Error("CONFIGURATION ERROR: SUPABASE_SERVICE_ROLE_KEY is missing. Please add it to Vercel Environment Variables.");
+        }
+
         await db.connect();
         // Validate body here
         // Sanitize payload: only send fields that exist in the Story table
