@@ -98,6 +98,7 @@ ALTER TABLE "_StoryToTag" ENABLE ROW LEVEL SECURITY;
 
 -- Story Policies
 CREATE POLICY "Public can read published stories" ON "Story" FOR SELECT USING (status = 'published');
+CREATE POLICY "Public can submit pending stories" ON "Story" FOR INSERT WITH CHECK (status = 'pending');
 CREATE POLICY "Admins have full access to stories" ON "Story" FOR ALL USING (true) WITH CHECK (true);
 
 -- Admin Policies
