@@ -8,7 +8,7 @@ export const revalidate = 0;
 
 async function getStories() {
     await db.connect();
-    return db.getStories({ limit: 100 });
+    return db.getStories({ limit: 1000 });
 }
 
 export default async function AdminDashboard() {

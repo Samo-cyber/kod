@@ -8,7 +8,7 @@ export const revalidate = 0;
 
 async function getStories() {
     await db.connect();
-    return db.getStories({ status: "published", limit: 50 });
+    return db.getStories({ status: "published", limit: 1000 });
 }
 
 export default async function StoriesPage() {
