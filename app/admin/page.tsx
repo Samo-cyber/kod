@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import LogoutButton from "@/components/Admin/LogoutButton";
+import DeleteStoryButton from "@/components/Admin/DeleteStoryButton.client";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -55,9 +56,7 @@ export default async function AdminDashboard() {
                                     <Link href={`/admin/stories/${story.id}/edit`} className="text-accent hover:underline">
                                         تعديل
                                     </Link>
-                                    <button className="text-red-500 hover:underline">
-                                        حذف
-                                    </button>
+                                    <DeleteStoryButton id={story.id} />
                                 </td>
                             </tr>
                         ))}
