@@ -19,6 +19,9 @@ export default async function AdminDashboard() {
                 <h1 className="text-3xl font-bold text-accent">إدارة القصص</h1>
                 <div className="flex gap-4">
                     <LogoutButton />
+                    <Link href="/admin/submitted" className="bg-secondary-1 border border-primary-2 text-primary-2 px-6 py-2 rounded hover:bg-primary-2 hover:text-white transition-colors">
+                        القصص المرسلة
+                    </Link>
                     <Link href="/admin/stories/new" className="bg-primary-2 text-secondary-3 px-6 py-2 rounded hover:bg-red-900 transition-colors">
                         إضافة قصة جديدة
                     </Link>
