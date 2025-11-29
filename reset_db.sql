@@ -94,6 +94,24 @@ ALTER TABLE "Tag" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Media" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "_StoryToTag" ENABLE ROW LEVEL SECURITY;
 
+-- SubmittedStory Table (New Request)
+CREATE TABLE "SubmittedStory" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "title" TEXT NOT NULL,
+    "author_name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "SubmittedStory_pkey" PRIMARY KEY ("id")
+);
+
+ALTER TABLE "SubmittedStory" ENABLE ROW LEVEL SECURITY;
+
+-- SubmittedStory Policies
+CREATE POLICY "Public can submit" ON "SubmittedStory" FOR INSERT WITH CHECK (true);
+CREATE POLICY "Admins can manage submitted" ON "SubmittedStory" FOR ALL USING (true) WITH CHECK (true);
+
 -- 4. CREATE RLS POLICIES
 
 -- Story Policies

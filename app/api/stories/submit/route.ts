@@ -6,15 +6,11 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     await db.connect();
-    const story = await db.createStory({
-      title_ar: body.title, // Assuming frontend sends 'title'
-      body_markdown_ar: body.content, // Assuming frontend sends 'content'
-      body_html_ar: body.content, // Simple fallback
-      excerpt_ar: body.content.substring(0, 100) + "...",
-      slug: `submitted-${Date.now()}`,
-      status: "pending",
-      cover_image: "/images/placeholders/story-placeholder.svg", // Default placeholder
-      author_id: null
+    const story = await db.createSubmittedStory({
+      title: body.title,
+      author_name: body.author,
+      email: body.email,
+      content: body.content
     });
 
     return NextResponse.json({
