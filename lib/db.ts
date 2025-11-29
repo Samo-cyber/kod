@@ -1,4 +1,5 @@
 // lib/supabase-adapter.ts
+// Force Rebuild: 1
 // Supabase adapter — lazy-loads @supabase/supabase-js and avoids throwing during build
 
 export interface Story {
