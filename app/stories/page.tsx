@@ -15,19 +15,19 @@ export default async function StoriesPage() {
     const { data: stories } = await getStories();
 
     return (
-        <div className="min-h-screen bg-primary-1 text-secondary-3 p-8 pt-24">
+        <div className="min-h-screen bg-primary-1 text-secondary-3 p-4 pt-24 md:p-8">
             <div className="container mx-auto">
-                <div className="flex justify-between items-center mb-12">
-                    <div className="flex items-center gap-6">
-                        <h1 className="text-4xl font-cairo font-bold text-accent">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 md:mb-12 gap-6 md:gap-0">
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 w-full md:w-auto">
+                        <h1 className="text-3xl md:text-4xl font-cairo font-bold text-accent flex items-center">
                             قصص الرعب
-                            <span className="text-lg text-secondary-3 opacity-50 mr-4 font-normal">({stories.length})</span>
+                            <span className="text-base md:text-lg text-secondary-3 opacity-50 mr-4 font-normal">({stories.length})</span>
                         </h1>
-                        <Link href="/stories/submit" className="bg-secondary-2 border border-accent text-accent px-4 py-2 rounded hover:bg-accent hover:text-primary-1 transition-colors text-sm font-bold">
+                        <Link href="/stories/submit" className="bg-secondary-2 border border-accent text-accent px-4 py-2 rounded hover:bg-accent hover:text-primary-1 transition-colors text-sm font-bold w-full md:w-auto text-center">
                             ابعت قصتك
                         </Link>
                     </div>
-                    <Link href="/" className="text-primary-2 hover:text-accent transition-colors font-bold">
+                    <Link href="/" className="text-primary-2 hover:text-accent transition-colors font-bold text-sm md:text-base">
                         &larr; العودة للرئيسية
                     </Link>
                 </div>
