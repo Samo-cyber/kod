@@ -186,6 +186,31 @@ class SupabaseAdapter implements DBAdapter {
     });
 
     if (error) {
+      // Attempt to create bucket if it doesn't exist
+      if (error.message && (error.message.includes("Bucket not found") || error.message.includes("The resource was not found"))) {
+        console.log("Bucket 'media' not found. Attempting to create...");
+        const { error: createError } = await supabase.storage.createBucket('media', { public: true });
+        if (createError) {
+          console.error("Failed to create bucket:", createError);
+          throw error; // Throw original error
+        }
+
+        // Retry upload
+        const { data: retryData, error: retryError } = await supabase.storage.from('media').upload(filename, uploadArg, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: file.type || 'application/octet-stream'
+        });
+
+        if (retryError) {
+          console.error("Retry Upload Error:", retryError);
+          throw retryError;
+        }
+
+        const { data: publicData } = supabase.storage.from('media').getPublicUrl(retryData.path);
+        return { path: retryData.path, url: publicData.publicUrl };
+      }
+
       console.error("Supabase Storage Upload Error:", error);
       throw error;
     }

@@ -135,12 +135,15 @@ export default function StoryEditor({ initialData, isNew = false }: StoryEditorP
                                                     method: "POST",
                                                     body: data,
                                                 });
-                                                if (!res.ok) throw new Error("Upload failed");
+                                                if (!res.ok) {
+                                                    const errorData = await res.json();
+                                                    throw new Error(errorData.error || "Upload failed");
+                                                }
                                                 const json = await res.json();
                                                 setFormData({ ...formData, cover_image: json.url });
-                                            } catch (err) {
+                                            } catch (err: any) {
                                                 console.error(err);
-                                                alert("فشل رفع الصورة");
+                                                alert(err.message || "فشل رفع الصورة");
                                             } finally {
                                                 setIsUploading(false);
                                             }
