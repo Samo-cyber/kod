@@ -21,6 +21,8 @@ body {
   background-color: var(--primary-1);
   color: var(--secondary-3);
   overflow-x: hidden;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Custom Scrollbar */
@@ -137,4 +139,33 @@ body {
     height: 20px;
     opacity: 0;
   }
+}
+
+/* Custom Prose Colors */
+.prose {
+  color: var(--secondary-3) !important;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  color: var(--accent) !important;
+}
+
+.prose strong {
+  color: var(--accent) !important;
+}
+
+.prose a {
+  color: var(--accent) !important;
+}
+
+.prose blockquote {
+  border-right-color: var(--accent) !important;
+  color: var(--secondary-3) !important;
+  background-color: rgba(214, 199, 161, 0.05);
+  padding: 1rem;
 }

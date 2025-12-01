@@ -28,7 +28,7 @@ export default function HeroSection() {
             {/* Parallax Background Layers */}
             <motion.div style={{ y: y1 }} className="absolute inset-0 z-0">
                 <Image
-                    src="/background.gif"
+                    src="/background.png"
                     alt="Background"
                     fill
                     className="object-cover opacity-30 grayscale contrast-125"

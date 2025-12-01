@@ -4,6 +4,7 @@ import "@/styles/globals.css";
 import clsx from "clsx";
 import AudioManager from "@/components/Audio/AudioManager";
 import WelcomeOverlay from "@/components/Landing/WelcomeOverlay";
+import DisableRightClick from "@/components/DisableRightClick.client";
 
 
 const cairo = Cairo({ subsets: ["arabic", "latin"], variable: "--font-cairo", weight: ["500", "900"] });
@@ -34,6 +35,7 @@ export default function RootLayout({
             )}>
                 <WelcomeOverlay />
                 <AudioManager />
+                <DisableRightClick />
                 {children}
             </body>
         </html>
