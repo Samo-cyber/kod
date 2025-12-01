@@ -65,20 +65,20 @@ export default function HeroSection() {
                         <div
                             className="absolute inset-0 bg-red-900 transition-all duration-300 group-hover:bg-red-600 blur-[2px] opacity-70 group-hover:opacity-100 group-hover:blur-[4px]"
                             style={{
-                                clipPath: "polygon(20% 0%, 80% 0%, 100% 30%, 85% 100%, 15% 100%, 0% 30%)",
+                                clipPath: "polygon(10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%, 0% 50%)",
                                 transform: "scale(1.02)"
                             }}
                         />
 
                         {/* Main Button Layer */}
                         <div
-                            className="relative px-20 py-8 bg-black transition-all duration-300 group-hover:bg-red-950/30"
+                            className="relative px-12 py-4 bg-black transition-all duration-300 group-hover:bg-red-950/30"
                             style={{
-                                clipPath: "polygon(20% 0%, 80% 0%, 100% 30%, 85% 100%, 15% 100%, 0% 30%)",
+                                clipPath: "polygon(10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%, 0% 50%)",
                             }}
                         >
                             {/* Text */}
-                            <span className="relative z-10 font-cairo text-2xl md:text-3xl font-bold text-gray-300 tracking-widest group-hover:text-white group-hover:drop-shadow-[0_0_10px_rgba(255,0,0,0.8)] transition-all duration-300">
+                            <span className="relative z-10 font-cairo text-lg md:text-xl font-bold text-gray-300 tracking-widest group-hover:text-white group-hover:drop-shadow-[0_0_10px_rgba(255,0,0,0.8)] transition-all duration-300">
                                 أدخل.. إن تجرأت
                             </span>
 
