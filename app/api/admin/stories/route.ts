@@ -27,10 +27,20 @@ export async function POST(request: Request) {
         await db.connect();
         // Validate body here
         // Sanitize payload: only send fields that exist in the Story table
+        let slug = body.slug;
+        if (!slug) {
+            // Auto-generate slug from Arabic title
+            slug = body.title_ar
+                .trim()
+                .replace(/\s+/g, '-') // Replace spaces with -
+                .replace(/[^\u0600-\u06FFa-zA-Z0-9-]/g, '') // Remove special chars (keep Arabic, English, numbers, dashes)
+                + `-${Date.now().toString().slice(-4)}`; // Append short timestamp for uniqueness
+        }
+
         const payload = {
             title_ar: body.title_ar,
             title_en: body.title_en || null,
-            slug: body.slug || `story-${Date.now()}`, // Ensure unique slug
+            slug: slug,
             excerpt_ar: body.excerpt_ar,
             body_markdown_ar: body.body_markdown_ar,
             body_html_ar: body.body_html_ar,
