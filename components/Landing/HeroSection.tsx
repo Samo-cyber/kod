@@ -69,22 +69,32 @@ export default function HeroSection() {
                 >
                     <Link
                         href="/stories"
-                        className="group relative px-16 py-6 overflow-hidden rounded-sm transition-all duration-500 hover:scale-105"
+                        className="group relative inline-block focus:outline-none"
                     >
-                        {/* Background & Border */}
-                        <div className="absolute inset-0 bg-black/60 border border-red-900/60 group-hover:bg-red-950/40 group-hover:border-red-600 transition-all duration-500 shadow-[0_0_20px_rgba(138,0,20,0.3)] group-hover:shadow-[0_0_40px_rgba(220,20,60,0.6)]" />
+                        {/* Glow/Border Layer */}
+                        <div
+                            className="absolute inset-0 bg-red-900 transition-all duration-300 group-hover:bg-red-600 blur-[2px] opacity-70 group-hover:opacity-100 group-hover:blur-[4px]"
+                            style={{
+                                clipPath: "polygon(20% 0%, 80% 0%, 100% 30%, 85% 100%, 15% 100%, 0% 30%)",
+                                transform: "scale(1.02)"
+                            }}
+                        />
 
-                        {/* Glitch/Blood Effect Overlay */}
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-30 bg-[radial-gradient(circle_at_center,#ff0000_0%,transparent_70%)] mix-blend-overlay transition-opacity duration-300" />
+                        {/* Main Button Layer */}
+                        <div
+                            className="relative px-20 py-8 bg-black transition-all duration-300 group-hover:bg-red-950/30"
+                            style={{
+                                clipPath: "polygon(20% 0%, 80% 0%, 100% 30%, 85% 100%, 15% 100%, 0% 30%)",
+                            }}
+                        >
+                            {/* Text */}
+                            <span className="relative z-10 font-cairo text-2xl md:text-3xl font-bold text-gray-300 tracking-widest group-hover:text-white group-hover:drop-shadow-[0_0_10px_rgba(255,0,0,0.8)] transition-all duration-300">
+                                أدخل.. إن تجرأت
+                            </span>
 
-                        {/* Text */}
-                        <span className="relative z-10 font-cairo text-2xl md:text-3xl font-bold text-gray-200 tracking-widest group-hover:text-red-100 group-hover:drop-shadow-[0_0_10px_rgba(255,0,0,0.8)] transition-all duration-300">
-                            أدخل.. إن تجرأت
-                        </span>
-
-                        {/* Animated Borders */}
-                        <span className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-red-600 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
-                        <span className="absolute bottom-0 right-0 w-full h-[1px] bg-gradient-to-r from-transparent via-red-600 to-transparent translate-x-full group-hover:-translate-x-full transition-transform duration-1000 ease-in-out" />
+                            {/* Inner Gradient Overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-red-900/10 to-transparent opacity-50" />
+                        </div>
                     </Link>
                 </motion.div>
             </motion.div>
