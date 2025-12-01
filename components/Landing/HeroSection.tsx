@@ -15,16 +15,6 @@ export default function HeroSection() {
 
     return (
         <section ref={containerRef} className="relative h-screen w-full overflow-hidden bg-primary-1 flex items-center justify-center">
-            {/* Logo */}
-            <div className="absolute top-10 left-10 z-50">
-                <Image
-                    src="/logo.png"
-                    alt="Kingdom of Darkness Logo"
-                    width={100}
-                    height={100}
-                    className="object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
-                />
-            </div>
             {/* Parallax Background Layers */}
             <motion.div style={{ y: y1 }} className="absolute inset-0 z-0">
                 <Image
@@ -51,10 +41,10 @@ export default function HeroSection() {
                     transition={{ duration: 1.5, ease: "easeOut" }}
                     className="mb-12"
                 >
-                    <div className="relative w-[300px] h-[150px] md:w-[600px] md:h-[300px]">
+                    <div className="relative w-[250px] h-[250px] md:w-[400px] md:h-[400px]">
                         <Image
-                            src="/hero-title.png"
-                            alt="مملكة الظلام"
+                            src="/logo.png"
+                            alt="Kingdom of Darkness"
                             fill
                             className="object-contain drop-shadow-[0_0_30px_rgba(138,0,20,0.6)]"
                             priority
