@@ -17,26 +17,41 @@ export default async function StoriesPage() {
     return (
         <div className="min-h-screen bg-primary-1 text-secondary-3 p-4 pt-24 md:p-8">
             <div className="container mx-auto">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 md:mb-12 gap-6 md:gap-0">
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 w-full md:w-auto">
-                        <h1 className="text-3xl md:text-4xl font-cairo font-bold text-accent flex items-center">
+                <div className="flex flex-col gap-6 mb-8 md:flex-row md:items-center md:justify-between md:mb-12">
+                    {/* Header Top Row: Title & Mobile Back Link */}
+                    <div className="flex items-center justify-between w-full md:w-auto">
+                        <h1 className="text-3xl md:text-4xl font-cairo font-bold text-accent flex items-center gap-3">
                             قصص الرعب
-                            <span className="text-base md:text-lg text-secondary-3 opacity-50 mr-4 font-normal">({stories.length})</span>
+                            <span className="text-lg font-normal text-secondary-3 opacity-60">({stories.length})</span>
                         </h1>
-                        <Link href="/stories/submit" className="bg-secondary-2 border border-accent text-accent px-4 py-2 rounded hover:bg-accent hover:text-primary-1 transition-colors text-sm font-bold w-full md:w-auto text-center">
-                            ابعت قصتك
+
+                        {/* Mobile Back Link */}
+                        <Link href="/" className="md:hidden text-sm font-bold text-primary-2 transition-colors hover:text-accent flex items-center gap-1">
+                            الرئيسية &larr;
                         </Link>
                     </div>
-                    <Link href="/" className="text-primary-2 hover:text-accent transition-colors font-bold text-sm md:text-base">
-                        &larr; العودة للرئيسية
-                    </Link>
+
+                    {/* Header Actions: Submit Button & Desktop Back Link */}
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center">
+                        <Link
+                            href="/stories/submit"
+                            className="w-full md:w-auto bg-secondary-2 border border-accent text-accent px-8 py-3 rounded-lg hover:bg-accent hover:text-primary-1 transition-all text-center font-bold shadow-lg hover:shadow-accent/20"
+                        >
+                            ابعت قصتك
+                        </Link>
+
+                        {/* Desktop Back Link */}
+                        <Link href="/" className="hidden md:block text-primary-2 hover:text-accent transition-colors font-bold mr-4">
+                            &larr; العودة للرئيسية
+                        </Link>
+                    </div>
                 </div>
 
                 {stories.length === 0 ? (
                     <p className="text-center text-xl opacity-50">لا توجد قصص منشورة حالياً.</p>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {stories.map((story) => (
+                        {stories.map((story: any) => (
                             <Link key={story.id} href={`/story/${story.slug}`}>
                                 <StoryCard
                                     title={story.title_ar}
