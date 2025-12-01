@@ -225,6 +225,14 @@ class SupabaseAdapter implements DBAdapter {
     const { error } = await supabase.from('SubmittedStory').delete().eq('id', id);
     if (error) throw error;
   }
+
+  async getSubmittedStoryById(id: string) {
+    const supabase = await this.getClient();
+    if (!supabase) return null;
+    const { data, error } = await supabase.from('SubmittedStory').select('*').eq('id', id).single();
+    if (error) return null;
+    return data;
+  }
 }
 
 export const db = new SupabaseAdapter();
