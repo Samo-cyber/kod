@@ -15,13 +15,19 @@ export default function StoryCard({ title, excerpt, image, slug }: StoryCardProp
         <div className={styles.card}>
             <div className={styles.imageWrapper}>
                 <div className={styles.crackLine} />
-                <Image
-                    src={image}
-                    alt={title}
-                    width={400}
-                    height={225}
-                    className={styles.image}
-                />
+                {image ? (
+                    <Image
+                        src={image}
+                        alt={title}
+                        width={400}
+                        height={225}
+                        className={styles.image}
+                    />
+                ) : (
+                    <div className="w-full h-full bg-secondary-2 flex items-center justify-center text-accent">
+                        <span className="text-4xl">?</span>
+                    </div>
+                )}
             </div>
             <div className={styles.content}>
                 <h3 className="font-cairo font-bold text-xl text-secondary-3 mb-2">{title}</h3>

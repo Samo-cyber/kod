@@ -19,7 +19,8 @@ async function getStory(slug: string) {
 }
 
 export default async function StoryPage({ params }: PageProps) {
-    const story = await getStory(params.slug);
+    const slug = decodeURIComponent(params.slug);
+    const story = await getStory(slug);
 
     if (!story) {
         notFound();
@@ -30,13 +31,19 @@ export default async function StoryPage({ params }: PageProps) {
             {/* Hero / Header */}
             <header className="relative w-full h-[60vh] overflow-hidden">
                 <div className="absolute inset-0 bg-black/50 z-10" />
-                <Image
-                    src={story.cover_image}
-                    alt={story.title_ar}
-                    fill
-                    className="object-cover"
-                    priority
-                />
+                {story.cover_image ? (
+                    <Image
+                        src={story.cover_image}
+                        alt={story.title_ar}
+                        fill
+                        className="object-cover"
+                        priority
+                    />
+                ) : (
+                    <div className="w-full h-full bg-secondary-2 flex items-center justify-center">
+                        <span className="text-6xl text-accent opacity-50">No Cover Image</span>
+                    </div>
+                )}
                 <div className="absolute inset-0 z-20 flex flex-col justify-end p-8 container mx-auto pb-16">
                     <Link href="/stories" className="text-secondary-3/80 hover:text-accent mb-6 inline-block w-fit">
                         &larr; العودة للقصص
