@@ -35,11 +35,16 @@ export default function StoryEditor({ initialData, isNew = false }: StoryEditorP
             .replace(/^## (.*$)/gim, '<h2>$1</h2>')
             .replace(/\n/gim, '<br />');
 
+        // Auto-generate excerpt from the first 200 characters of the markdown body
+        const excerpt_ar = formData.body_markdown_ar
+            .replace(/[#*`]/g, '') // Remove markdown syntax
+            .slice(0, 200) + "...";
+
         try {
             const res = await fetch(url, {
                 method,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...formData, body_html_ar }),
+                body: JSON.stringify({ ...formData, body_html_ar, excerpt_ar }),
             });
 
             if (res.ok) {
@@ -156,16 +161,7 @@ export default function StoryEditor({ initialData, isNew = false }: StoryEditorP
                 </div>
             </div>
 
-            <div className="mb-6">
-                <label className="block text-sm font-bold mb-2 text-accent">مقتطف قصير</label>
-                <textarea
-                    required
-                    rows={3}
-                    className="w-full p-3 bg-secondary-2 border border-secondary-2 rounded focus:border-accent focus:outline-none text-secondary-3"
-                    value={formData.excerpt_ar}
-                    onChange={(e) => setFormData({ ...formData, excerpt_ar: e.target.value })}
-                />
-            </div>
+
 
             <div className="mb-6">
                 <label className="block text-sm font-bold mb-2 text-accent">محتوى القصة (Markdown)</label>

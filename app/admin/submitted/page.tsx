@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+import DeleteSubmittedButton from "@/components/AdminUI/DeleteSubmittedButton.client";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -47,9 +48,12 @@ export default async function SubmittedStoriesPage() {
                                         <td className="p-3 md:p-4 opacity-70">{story.email}</td>
                                         <td className="p-3 md:p-4 opacity-70 whitespace-nowrap">{new Date(story.created_at).toLocaleDateString('ar-EG')}</td>
                                         <td className="p-3 md:p-4">
-                                            <Link href={`/admin/stories/new?from_submitted=${story.id}`} className="text-accent hover:underline whitespace-nowrap">
-                                                مراجعة ونشر
-                                            </Link>
+                                            <div className="flex items-center gap-4">
+                                                <Link href={`/admin/stories/new?from_submitted=${story.id}`} className="text-accent hover:underline whitespace-nowrap">
+                                                    مراجعة ونشر
+                                                </Link>
+                                                <DeleteSubmittedButton id={story.id} />
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
