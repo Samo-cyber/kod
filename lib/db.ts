@@ -53,7 +53,14 @@ class SupabaseAdapter implements DBAdapter {
 
     // dynamic import so bundler/edge runtime won't eagerly require Node APIs
     const { createClient } = await import('@supabase/supabase-js');
-    this.supabase = createClient(this.url, this.key, { auth: { persistSession: false } });
+    this.supabase = createClient(this.url, this.key, {
+      auth: { persistSession: false },
+      global: {
+        fetch: (url, options) => {
+          return fetch(url, { ...options, cache: 'no-store' });
+        }
+      }
+    });
     return this.supabase;
   }
 
