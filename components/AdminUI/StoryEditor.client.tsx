@@ -71,16 +71,7 @@ export default function StoryEditor({ initialData, isNew = false }: StoryEditorP
                         onChange={(e) => setFormData({ ...formData, title_ar: e.target.value })}
                     />
                 </div>
-                <div>
-                    <label className="block text-sm font-bold mb-2 text-accent">العنوان (إنجليزي - اختياري)</label>
-                    <input
-                        type="text"
-                        className="w-full p-3 bg-secondary-2 border border-secondary-2 rounded focus:border-accent focus:outline-none text-secondary-3"
-                        value={formData.title_en || ""}
-                        onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
-                        dir="ltr"
-                    />
-                </div>
+
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">

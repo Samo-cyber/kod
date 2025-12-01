@@ -169,18 +169,26 @@ class SupabaseAdapter implements DBAdapter {
     const supabase = await this.getClient();
     if (!supabase) throw new Error('Supabase not configured');
 
-    const filename = `${Date.now()}-${(file && file.name) || 'upload'}`;
+    const filename = `${Date.now()}-${(file.name || 'upload').replace(/[^a-zA-Z0-9.-]/g, '')}`;
 
-    // On server: file may be a Buffer or ReadableStream
-    // On client: it may be a File/Blob
-    const uploadArg = file.buffer ?? file; // if server single-file upload uses { buffer }
+    let uploadArg = file;
+    if (typeof file.arrayBuffer === 'function') {
+      const buffer = await file.arrayBuffer();
+      uploadArg = buffer;
+    } else if (file.buffer) {
+      uploadArg = file.buffer;
+    }
 
     const { data, error } = await supabase.storage.from('media').upload(filename, uploadArg, {
       cacheControl: '3600',
-      upsert: false
+      upsert: false,
+      contentType: file.type || 'application/octet-stream'
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Supabase Storage Upload Error:", error);
+      throw error;
+    }
 
     const { data: publicData } = supabase.storage.from('media').getPublicUrl(data.path);
     return { path: data.path, url: publicData.publicUrl };

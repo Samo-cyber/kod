@@ -10,13 +10,23 @@ export default async function NewStoryPage({ searchParams }: { searchParams: { f
     if (searchParams.from_submitted) {
         const submittedStory = await db.getSubmittedStoryById(searchParams.from_submitted);
         if (submittedStory) {
+            let content = submittedStory.content;
+            let coverImage = "";
+
+            // Extract embedded cover image
+            const imageMatch = content.match(/^!\[Cover Image\]\((.*?)\)\n\n/);
+            if (imageMatch) {
+                coverImage = imageMatch[1];
+                content = content.replace(imageMatch[0], "");
+            }
+
             initialData = {
                 title_ar: submittedStory.title,
                 title_en: "",
                 slug: "", // Let admin decide slug
                 excerpt_ar: "", // Admin needs to write excerpt
-                body_markdown_ar: submittedStory.content,
-                cover_image: "", // Admin needs to add image
+                body_markdown_ar: content,
+                cover_image: coverImage, // Admin needs to add image
                 status: "draft",
             };
         }

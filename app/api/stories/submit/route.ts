@@ -5,12 +5,17 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
+    let content = body.content;
+    if (body.cover_image) {
+      content = `![Cover Image](${body.cover_image})\n\n${content}`;
+    }
+
     await db.connect();
     const story = await db.createSubmittedStory({
       title: body.title,
       author_name: body.author,
       email: body.email,
-      content: body.content
+      content: content
     });
 
     return NextResponse.json({

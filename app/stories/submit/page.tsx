@@ -12,8 +12,10 @@ export default function SubmitStoryPage() {
         email: "",
         storyContent: "",
         agreedToTerms: false,
+        coverImage: "",
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -30,7 +32,8 @@ export default function SubmitStoryPage() {
                     title: formData.title,
                     content: formData.storyContent,
                     author: formData.authorName,
-                    email: formData.email
+                    email: formData.email,
+                    cover_image: formData.coverImage
                 }),
             });
 
@@ -102,6 +105,82 @@ export default function SubmitStoryPage() {
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         />
+                    </div>
+
+                    <div className="mb-6">
+                        <label className="block text-sm font-bold mb-2 text-accent">صورة الغلاف (اختياري)</label>
+                        <div className="relative">
+                            {formData.coverImage ? (
+                                <div className="relative w-full h-48 rounded-lg overflow-hidden group border border-secondary-2">
+                                    <img
+                                        src={formData.coverImage}
+                                        alt="Cover"
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, coverImage: "" })}
+                                            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+                                        >
+                                            حذف
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="w-full">
+                                    <label
+                                        className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${isUploading
+                                            ? "border-accent bg-secondary-1"
+                                            : "border-secondary-3 hover:border-accent hover:bg-secondary-1"
+                                            }`}
+                                    >
+                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                            {isUploading ? (
+                                                <div className="text-accent">جاري الرفع...</div>
+                                            ) : (
+                                                <>
+                                                    <svg className="w-8 h-8 mb-4 text-secondary-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                                                    </svg>
+                                                    <p className="mb-2 text-sm text-secondary-3"><span className="font-semibold">اضغط للرفع</span> أو اسحب الصورة هنا</p>
+                                                    <p className="text-xs text-secondary-3 opacity-70">PNG, JPG or WEBP</p>
+                                                </>
+                                            )}
+                                        </div>
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            accept="image/*"
+                                            disabled={isUploading}
+                                            onChange={async (e) => {
+                                                const file = e.target.files?.[0];
+                                                if (!file) return;
+
+                                                setIsUploading(true);
+                                                const data = new FormData();
+                                                data.append("file", file);
+
+                                                try {
+                                                    const res = await fetch("/api/upload", {
+                                                        method: "POST",
+                                                        body: data,
+                                                    });
+                                                    if (!res.ok) throw new Error("Upload failed");
+                                                    const json = await res.json();
+                                                    setFormData({ ...formData, coverImage: json.url });
+                                                } catch (err: any) {
+                                                    console.error(err);
+                                                    alert(err.message || "فشل رفع الصورة");
+                                                } finally {
+                                                    setIsUploading(false);
+                                                }
+                                            }}
+                                        />
+                                    </label>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="mb-6">
