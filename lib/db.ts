@@ -19,6 +19,7 @@ export interface Story {
   created_at: Date;
   updated_at: Date;
   author_id?: string | null;
+  author_name?: string | null;
 }
 
 export interface Media {

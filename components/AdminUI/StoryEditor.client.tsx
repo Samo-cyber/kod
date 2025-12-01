@@ -18,6 +18,7 @@ export default function StoryEditor({ initialData, isNew = false }: StoryEditorP
         body_markdown_ar: "",
         cover_image: "",
         status: "draft",
+        author_name: "",
     });
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -76,7 +77,16 @@ export default function StoryEditor({ initialData, isNew = false }: StoryEditorP
                         onChange={(e) => setFormData({ ...formData, title_ar: e.target.value })}
                     />
                 </div>
-
+                <div>
+                    <label className="block text-sm font-bold mb-2 text-accent">اسم الكاتب (اختياري)</label>
+                    <input
+                        type="text"
+                        className="w-full p-3 bg-secondary-2 border border-secondary-2 rounded focus:border-accent focus:outline-none text-secondary-3"
+                        value={formData.author_name || ""}
+                        onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
+                        placeholder="افتراضي: KOD Admin"
+                    />
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">

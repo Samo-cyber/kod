@@ -47,6 +47,7 @@ export async function POST(request: Request) {
             cover_image: body.cover_image,
             status: body.status || "draft",
             reading_time_min: Math.ceil(body.body_markdown_ar.split(" ").length / 200) || 1, // Auto-calc reading time
+            author_name: body.author_name || "KOD Admin",
             // Explicitly exclude author_id for now to avoid relation issues
         };
 

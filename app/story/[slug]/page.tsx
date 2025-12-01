@@ -63,7 +63,11 @@ export default async function StoryPage({ params }: PageProps) {
             <div className="container mx-auto px-4 max-w-4xl -mt-10 relative z-30">
                 <div className="bg-secondary-1 p-8 md:p-12 rounded-lg shadow-2xl border border-secondary-2">
                     <div className="flex justify-between items-center text-sm text-secondary-3/60 mb-8 font-inter border-b border-secondary-2 pb-4">
-                        <span>{new Date(story.created_at).toLocaleDateString('ar-EG')}</span>
+                        <div className="flex items-center gap-4">
+                            <span>{new Date(story.created_at).toLocaleDateString('ar-EG')}</span>
+                            <span className="w-1 h-1 bg-secondary-3/40 rounded-full"></span>
+                            <span className="text-accent">{story.author_name || "KOD Admin"}</span>
+                        </div>
                         <span>{story.reading_time_min} دقائق قراءة</span>
                     </div>
 
