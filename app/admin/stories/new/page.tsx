@@ -14,7 +14,7 @@ export default async function NewStoryPage({ searchParams }: { searchParams: { f
             let coverImage = "";
 
             // Extract embedded cover image
-            const imageMatch = content.match(/^!\[Cover Image\]\((.*?)\)\n\n/);
+            const imageMatch = content.match(/^!\[Cover Image\]\((.*?)\)\s+/);
             if (imageMatch) {
                 coverImage = imageMatch[1];
                 content = content.replace(imageMatch[0], "");
