@@ -14,7 +14,7 @@ export default function HeroSection() {
     const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
     return (
-        <section ref={containerRef} className="relative h-screen w-full overflow-hidden bg-primary-1 flex items-center justify-center">
+        <section ref={containerRef} className="relative h-full w-full overflow-hidden bg-primary-1 flex items-center justify-center">
             {/* Parallax Background Layers */}
             <motion.div style={{ y: y1 }} className="absolute inset-0 z-0">
                 <Image
