@@ -46,7 +46,7 @@ export default async function StoryPage({ params }: PageProps) {
                 )}
                 <div className="absolute inset-0 z-20 flex flex-col justify-end p-8 container mx-auto pb-16">
                     <Link href="/stories" className="text-secondary-3/80 hover:text-accent mb-6 inline-block w-fit">
-                        &larr; العودة للقصص
+                        &rarr; العودة للقصص
                     </Link>
                     <h1 className="text-5xl md:text-7xl font-cairo font-black text-secondary-3 mb-4 drop-shadow-lg">
                         {story.title_ar}
