@@ -79,7 +79,7 @@ export default function HeroSection() {
                         >
                             {/* Text */}
                             <span className="relative z-10 font-cairo text-lg md:text-xl font-bold text-gray-300 tracking-widest group-hover:text-white group-hover:drop-shadow-[0_0_10px_rgba(255,0,0,0.8)] transition-all duration-300">
-                                أدخل.. إن تجرأت
+                                الدخول
                             </span>
 
                             {/* Inner Gradient Overlay */}

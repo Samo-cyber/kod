@@ -34,9 +34,8 @@ export default function WelcomeOverlay() {
                             <h1 className="text-6xl md:text-8xl font-black text-[#8a0014] drop-shadow-[0_0_50px_rgba(138,0,20,0.6)] font-changa animate-pulse">
                                 ! تحذير !
                             </h1>
-                            <p className="text-xl md:text-2xl text-gray-400 font-cairo leading-relaxed max-w-lg mx-auto">
+                            <p className="text-xl md:text-2xl text-gray-400 font-cairo leading-relaxed max-w-2xl mx-auto px-4">
                                 المحتوى المعروض قد يسبب <span className="text-red-700 font-bold">الكوابيس</span>.
-                                <br />
                                 ينصح بارتداء سماعات الرأس لتجربة مرعبة بالكامل.
                             </p>
                         </div>
