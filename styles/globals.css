@@ -41,6 +41,12 @@ body {
   background: var(--accent);
 }
 
+/* Text Selection */
+::selection {
+  background-color: var(--primary-2);
+  color: var(--secondary-3);
+}
+
 /* Horror Animations */
 @keyframes glitch {
   0% {
