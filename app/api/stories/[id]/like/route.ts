@@ -22,12 +22,23 @@ export async function GET(
     }
 }
 
+// Simple in-memory rate limit: IP -> timestamp
+const rateLimitMap = new Map<string, number>();
+const RATE_LIMIT_WINDOW = 1000; // 1 second (prevent spam clicking)
+
 export async function POST(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     const { id } = await params;
     const ip = request.headers.get("x-forwarded-for") || "unknown";
+
+    // Rate Limiting
+    const lastRequest = rateLimitMap.get(ip);
+    if (lastRequest && Date.now() - lastRequest < RATE_LIMIT_WINDOW) {
+        return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+    rateLimitMap.set(ip, Date.now());
 
     try {
         await db.connect();

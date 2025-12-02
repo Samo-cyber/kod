@@ -20,6 +20,28 @@ async function getStory(slug: string) {
     return db.getStoryBySlug(slug);
 }
 
+export async function generateMetadata({ params }: PageProps) {
+    const { slug: rawSlug } = await params;
+    const slug = decodeURIComponent(rawSlug);
+    const story = await getStory(slug);
+
+    if (!story) {
+        return {
+            title: "Story Not Found",
+        };
+    }
+
+    return {
+        title: story.title_ar,
+        description: story.excerpt_ar,
+        openGraph: {
+            title: story.title_ar,
+            description: story.excerpt_ar,
+            images: story.cover_image ? [{ url: story.cover_image }] : [],
+        },
+    };
+}
+
 export default async function StoryPage({ params }: PageProps) {
     const { slug: rawSlug } = await params;
     const slug = decodeURIComponent(rawSlug);

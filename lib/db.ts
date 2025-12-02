@@ -52,7 +52,8 @@ interface DBAdapter {
   getStories(opts?: { status?: string; limit?: number; page?: number }): Promise<{ data: Story[]; meta: { total: number; page: number; limit: number } }>;
 
   // Comments
-  getComments(storyId: string): Promise<Comment[]>;
+  // Comments
+  getComments(storyId: string, opts?: { limit?: number; page?: number }): Promise<Comment[]>;
   createComment(payload: Partial<Comment>): Promise<Comment>;
 
   // Likes
@@ -301,15 +302,21 @@ class SupabaseAdapter implements DBAdapter {
   }
 
   // Comments Implementation
-  async getComments(storyId: string) {
+  async getComments(storyId: string, opts?: { limit?: number; page?: number }) {
     const supabase = await this.getClient();
     if (!supabase) return [];
+
+    const page = opts?.page || 1;
+    const limit = opts?.limit || 10;
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
 
     const { data, error } = await supabase
       .from('Comment')
       .select('*')
       .eq('story_id', storyId)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .range(from, to);
 
     if (error) {
       console.error("getComments Error:", error);

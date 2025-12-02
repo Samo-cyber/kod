@@ -20,12 +20,25 @@ export default function CommentsSection({ storyId }: CommentsSectionProps) {
     const [submitting, setSubmitting] = useState(false);
     const [newComment, setNewComment] = useState("");
     const [authorName, setAuthorName] = useState("");
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
 
-    const fetchComments = async () => {
+    const fetchComments = async (pageNum: number, reset = false) => {
         try {
-            const res = await fetch(`/api/stories/${storyId}/comments`);
+            const res = await fetch(`/api/stories/${storyId}/comments?page=${pageNum}`);
             const data = await res.json();
-            setComments(data);
+
+            if (data.length < 10) {
+                setHasMore(false);
+            } else {
+                setHasMore(true);
+            }
+
+            if (reset) {
+                setComments(data);
+            } else {
+                setComments((prev) => [...prev, ...data]);
+            }
         } catch (error) {
             console.error("Error fetching comments:", error);
         } finally {
@@ -34,8 +47,14 @@ export default function CommentsSection({ storyId }: CommentsSectionProps) {
     };
 
     useEffect(() => {
-        fetchComments();
+        fetchComments(1, true);
     }, [storyId]);
+
+    const handleLoadMore = () => {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        fetchComments(nextPage);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -54,7 +73,11 @@ export default function CommentsSection({ storyId }: CommentsSectionProps) {
 
             if (res.ok) {
                 setNewComment("");
-                fetchComments(); // Refresh list
+                setPage(1);
+                fetchComments(1, true); // Refresh list
+            } else {
+                const err = await res.json();
+                alert(err.error || "Failed to post comment");
             }
         } catch (error) {
             console.error("Error submitting comment:", error);
@@ -65,7 +88,7 @@ export default function CommentsSection({ storyId }: CommentsSectionProps) {
 
     return (
         <div className="mt-12 border-t border-secondary-2 pt-8">
-            <h3 className="text-2xl font-cairo font-bold text-accent mb-6">التعليقات ({comments.length})</h3>
+            <h3 className="text-2xl font-cairo font-bold text-accent mb-6">التعليقات ({comments.length}{hasMore ? "+" : ""})</h3>
 
             {/* Comment Form */}
             <form onSubmit={handleSubmit} className="mb-8 bg-secondary-1 p-6 rounded-lg border border-secondary-2">
@@ -76,6 +99,7 @@ export default function CommentsSection({ storyId }: CommentsSectionProps) {
                         value={authorName}
                         onChange={(e) => setAuthorName(e.target.value)}
                         placeholder="اكتب اسمك هنا..."
+                        maxLength={50}
                         className="w-full bg-primary-1 border border-secondary-2 rounded p-3 text-secondary-3 focus:border-accent focus:outline-none transition-colors"
                     />
                 </div>
@@ -87,8 +111,12 @@ export default function CommentsSection({ storyId }: CommentsSectionProps) {
                         placeholder="شاركنا رأيك في القصة..."
                         rows={4}
                         required
+                        maxLength={500}
                         className="w-full bg-primary-1 border border-secondary-2 rounded p-3 text-secondary-3 focus:border-accent focus:outline-none transition-colors resize-none"
                     />
+                    <div className="text-left text-xs text-secondary-3 opacity-50 mt-1">
+                        {newComment.length}/500
+                    </div>
                 </div>
                 <button
                     type="submit"
@@ -100,7 +128,7 @@ export default function CommentsSection({ storyId }: CommentsSectionProps) {
             </form>
 
             {/* Comments List */}
-            {loading ? (
+            {loading && page === 1 ? (
                 <div className="text-center text-secondary-3 opacity-50 py-8">جاري تحميل التعليقات...</div>
             ) : comments.length === 0 ? (
                 <div className="text-center text-secondary-3 opacity-50 py-8">كن أول من يعلق على هذه القصة!</div>
@@ -125,6 +153,17 @@ export default function CommentsSection({ storyId }: CommentsSectionProps) {
                             </motion.div>
                         ))}
                     </AnimatePresence>
+
+                    {hasMore && (
+                        <div className="text-center mt-6">
+                            <button
+                                onClick={handleLoadMore}
+                                className="text-accent hover:text-secondary-3 transition-colors text-sm font-bold border-b border-accent hover:border-secondary-3 pb-1"
+                            >
+                                تحميل المزيد من التعليقات
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
