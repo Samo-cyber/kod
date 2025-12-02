@@ -3,14 +3,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import styles from "@/components/StoryPage/StoryPage.module.scss";
+import LikeButton from "@/components/LikeButton";
+import CommentsSection from "@/components/CommentsSection";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
-    params: {
+    params: Promise<{
         slug: string;
-    };
+    }>;
 }
 
 async function getStory(slug: string) {
@@ -19,7 +21,8 @@ async function getStory(slug: string) {
 }
 
 export default async function StoryPage({ params }: PageProps) {
-    const slug = decodeURIComponent(params.slug);
+    const { slug: rawSlug } = await params;
+    const slug = decodeURIComponent(rawSlug);
     const story = await getStory(slug);
 
     if (!story) {
@@ -68,13 +71,19 @@ export default async function StoryPage({ params }: PageProps) {
                             <span className="w-1 h-1 bg-secondary-3/40 rounded-full"></span>
                             <span className="text-accent">{story.author_name || "KOD Admin"}</span>
                         </div>
-                        <span>{story.reading_time_min} دقائق قراءة</span>
+                        <div className="flex items-center gap-4">
+                            <span>{story.reading_time_min} دقائق قراءة</span>
+                            <LikeButton storyId={story.id} />
+                        </div>
                     </div>
 
                     <div
                         className="prose prose-invert prose-lg max-w-none font-cairo leading-loose"
                         dangerouslySetInnerHTML={{ __html: story.body_html_ar }}
                     />
+
+                    {/* Comments Section */}
+                    <CommentsSection storyId={story.id} />
                 </div>
             </div>
         </article>

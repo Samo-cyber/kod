@@ -32,9 +32,34 @@ export interface Media {
   uploaded_at: Date;
 }
 
+export interface Comment {
+  id: string;
+  story_id: string;
+  content: string;
+  author_name: string;
+  created_at: Date;
+}
+
+export interface StoryLike {
+  id: string;
+  story_id: string;
+  ip_address: string;
+  created_at: Date;
+}
+
 interface DBAdapter {
   connect(): Promise<void>;
   getStories(opts?: { status?: string; limit?: number; page?: number }): Promise<{ data: Story[]; meta: { total: number; page: number; limit: number } }>;
+
+  // Comments
+  getComments(storyId: string): Promise<Comment[]>;
+  createComment(payload: Partial<Comment>): Promise<Comment>;
+
+  // Likes
+  getLikesCount(storyId: string): Promise<number>;
+  hasLiked(storyId: string, ip: string): Promise<boolean>;
+  addLike(storyId: string, ip: string): Promise<void>;
+  removeLike(storyId: string, ip: string): Promise<void>;
 }
 
 class SupabaseAdapter implements DBAdapter {
@@ -273,6 +298,109 @@ class SupabaseAdapter implements DBAdapter {
     const { data, error } = await supabase.from('SubmittedStory').select('*').eq('id', id).single();
     if (error) return null;
     return data;
+  }
+
+  // Comments Implementation
+  async getComments(storyId: string) {
+    const supabase = await this.getClient();
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+      .from('Comment')
+      .select('*')
+      .eq('story_id', storyId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error("getComments Error:", error);
+      return [];
+    }
+
+    return (data || []).map((c: any) => ({
+      ...c,
+      created_at: c.created_at ? new Date(c.created_at) : null
+    })) as Comment[];
+  }
+
+  async createComment(payload: Partial<Comment>) {
+    const supabase = await this.getClient();
+    if (!supabase) throw new Error('Supabase not configured');
+
+    const { data, error } = await supabase.from('Comment').insert(payload).select().single();
+    if (error) {
+      console.error("createComment Error:", error);
+      throw error;
+    }
+
+    return {
+      ...data,
+      created_at: data.created_at ? new Date(data.created_at) : null
+    } as Comment;
+  }
+
+  // Likes Implementation
+  async getLikesCount(storyId: string) {
+    const supabase = await this.getClient();
+    if (!supabase) return 0;
+
+    const { count, error } = await supabase
+      .from('StoryLike')
+      .select('*', { count: 'exact', head: true })
+      .eq('story_id', storyId);
+
+    if (error) {
+      console.error("getLikesCount Error:", error);
+      return 0;
+    }
+
+    return count || 0;
+  }
+
+  async hasLiked(storyId: string, ip: string) {
+    const supabase = await this.getClient();
+    if (!supabase) return false;
+
+    const { data, error } = await supabase
+      .from('StoryLike')
+      .select('id')
+      .eq('story_id', storyId)
+      .eq('ip_address', ip)
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+      console.error("hasLiked Error:", error);
+    }
+
+    return !!data;
+  }
+
+  async addLike(storyId: string, ip: string) {
+    const supabase = await this.getClient();
+    if (!supabase) throw new Error('Supabase not configured');
+
+    const { error } = await supabase.from('StoryLike').insert({ story_id: storyId, ip_address: ip });
+
+    // Ignore unique constraint violation (already liked)
+    if (error && error.code !== '23505') {
+      console.error("addLike Error:", error);
+      throw error;
+    }
+  }
+
+  async removeLike(storyId: string, ip: string) {
+    const supabase = await this.getClient();
+    if (!supabase) throw new Error('Supabase not configured');
+
+    const { error } = await supabase
+      .from('StoryLike')
+      .delete()
+      .eq('story_id', storyId)
+      .eq('ip_address', ip);
+
+    if (error) {
+      console.error("removeLike Error:", error);
+      throw error;
+    }
   }
 }
 
