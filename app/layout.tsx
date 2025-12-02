@@ -5,6 +5,7 @@ import clsx from "clsx";
 import AudioManager from "@/components/Audio/AudioManager";
 import WelcomeOverlay from "@/components/Landing/WelcomeOverlay";
 import DisableRightClick from "@/components/DisableRightClick.client";
+import { Analytics } from "@vercel/analytics/next";
 
 
 const cairo = Cairo({ subsets: ["arabic", "latin"], variable: "--font-cairo", weight: ["500", "900"] });
@@ -37,6 +38,7 @@ export default function RootLayout({
                 <AudioManager />
                 <DisableRightClick />
                 {children}
+                <Analytics />
             </body>
         </html>
     );
